@@ -17,8 +17,6 @@ export function Validator(formSelector) {
         }
     };
 
-    
-
     // định nghĩa các rules
     /**
      * Quy ước tạo rules:
@@ -44,6 +42,14 @@ export function Validator(formSelector) {
                 return value.length <= max ? undefined : `Vui lòng nhập tối đa ${max} ký tự!`;
             }
         },
+        confirmPassword: (value) => {
+            var currentPassword = document.querySelector('#register-form #password').value;
+            if (value === currentPassword) {
+                return undefined;
+            } else {
+                return `Mật khẩu nhập lại không trùng khớp! Vui lòng nhập lại!`;
+            }
+        }
     }
 
     // lấy ra  form element trong DOM theo `formSelector`
