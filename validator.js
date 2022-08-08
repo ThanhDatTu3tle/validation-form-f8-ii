@@ -5,18 +5,8 @@ export function Validator(formSelector) {
     var _this = this;
     // khởi tạo obj rỗng chứa các rules của form
     var formRules = {};
-
-    // lấy ra thẻ cha của element hiện tại (tức là currentElement)
-    function getParent(currentElement, selector) {
-        while (currentElement.parentElement) {
-            if (currentElement.parentElement.matches(selector)) {
-              return currentElement.parentElement;
-            }
-      
-            currentElement = currentElement.parentElement;
-        }
-    };
-
+    // lấy ra  form element trong DOM theo `formSelector`
+    var formElement = document.querySelector(formSelector);
     // định nghĩa các rules
     /**
      * Quy ước tạo rules:
@@ -49,16 +39,40 @@ export function Validator(formSelector) {
             } else {
                 return `Mật khẩu nhập lại không trùng khớp! Vui lòng nhập lại!`;
             }
+        },
+        radio: (value) => {
+            var nameOfInputRadio = event.target.name;
+            // console.log(nameOfInputRadio);
+            // console.log(nameOfInputRadio)
+            var radioSelector = document.querySelector(`input[name="${nameOfInputRadio}"]`);
+            // console.log(radioSelector)
+            value = radioSelector;
+            
+            return value ? undefined : `Vui lòng nhập trường này!`;
+        },
+        checkbox: (value) => {
+            var nameOfInputCheckbox = event.target.name;
+            var checkboxSelector = document.querySelector(`input[name="${nameOfInputCheckbox}"]`);
+            value = checkboxSelector;
+            return value ? undefined : `Vui lòng nhập trường này!`;
         }
     }
 
-    // lấy ra  form element trong DOM theo `formSelector`
-    var formElement = document.querySelector(formSelector);
+    // lấy ra thẻ cha của element hiện tại (tức là currentElement)
+    function getParent(currentElement, selector) {
+        while (currentElement.parentElement) {
+            if (currentElement.parentElement.matches(selector)) {
+              return currentElement.parentElement;
+            }
+      
+            currentElement = currentElement.parentElement;
+        }
+    };
     
     // kiểm tra và chỉ xử lý khi có element trong DOM
     if (formElement) {
         var inputs = formElement.querySelectorAll('[name][rules]');
-
+        // console.log(inputs);
         for (var input of inputs) {
             // tách riêng các rule bị ngăn cách bởi dấu "|" và gán vào biến rules
             var rules = input.getAttribute('rules').split('|');
@@ -154,7 +168,6 @@ export function Validator(formSelector) {
         };
 
 
-
         // xử lý hành vi submit form
         formElement.onsubmit = function (event) {
             event.preventDefault();
@@ -168,7 +181,6 @@ export function Validator(formSelector) {
                 if (!handleValidate({ target: input })) {
                     isValid = false;
                 }
-                
             } 
 
             // khi không có lỗi thì submit form
@@ -184,12 +196,12 @@ export function Validator(formSelector) {
                             break;
                         case 'checkbox':  
                             if (!input.matches(':checked')) {
-                            // values[input.name] = '';
-                            return values;
+                                // values[input.name] = '';
+                                return values;
                             }
                             
                             if (!Array.isArray(values[input.name])) {
-                            values[input.name] = [];
+                                values[input.name] = [];
                             }
 
                             values[input.name].push(input.value);
