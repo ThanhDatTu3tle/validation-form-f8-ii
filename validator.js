@@ -1,4 +1,3 @@
-// import { handleValidate } from "./handleValidate";
 
 // đối tượng Validator
 export function Validator(formSelector) {
@@ -40,21 +39,8 @@ export function Validator(formSelector) {
                 return `Mật khẩu nhập lại không trùng khớp! Vui lòng nhập lại!`;
             }
         },
-        radio: (value) => {
-            var nameOfInputRadio = event.target.name;
-            // console.log(nameOfInputRadio);
-            // console.log(nameOfInputRadio)
-            var radioSelector = document.querySelector(`input[name="${nameOfInputRadio}"]`);
-            // console.log(radioSelector)
-            value = radioSelector;
-            
-            return value ? undefined : `Vui lòng nhập trường này!`;
-        },
-        checkbox: (value) => {
-            var nameOfInputCheckbox = event.target.name;
-            var checkboxSelector = document.querySelector(`input[name="${nameOfInputCheckbox}"]`);
-            value = checkboxSelector;
-            return value ? undefined : `Vui lòng nhập trường này!`;
+        checked(elementChecked) {
+            return elementChecked ? undefined : 'Vui lòng chọn trường này!'
         }
     }
 
@@ -64,11 +50,10 @@ export function Validator(formSelector) {
             if (currentElement.parentElement.matches(selector)) {
               return currentElement.parentElement;
             }
-      
             currentElement = currentElement.parentElement;
         }
     };
-    
+
     // kiểm tra và chỉ xử lý khi có element trong DOM
     if (formElement) {
         var inputs = formElement.querySelectorAll('[name][rules]');
@@ -125,15 +110,20 @@ export function Validator(formSelector) {
 
         function handleValidate(event) {
             var rules = formRules[event.target.name];
-            // console.log(rules);
             var errorMessage;
 
             for (var rule of rules) {
-                errorMessage = rule(event.target.value);
+                switch (event.target.type) {
+                    case 'radio':
+                    case 'checkbox':
+                        var inputChecked = formElement.querySelector(`input[name="${event.target.name}"][rules]:checked`)
+                        errorMessage = rule(inputChecked)
+                        break
+                    default:
+                        errorMessage = rule(event.target.value)
+                }
                 if (errorMessage) break;
             }
-
-            // console.log(errorMessage);
 
             // nếu có lỗi => hiển thị ra UI
             if (errorMessage) {
@@ -142,6 +132,7 @@ export function Validator(formSelector) {
 
                 if (formGroup) {
                     formGroup.classList.add('invalid');
+                    
                     var formMessage = formGroup.querySelector('.form-message');
 
                     if (formMessage) {
@@ -171,8 +162,6 @@ export function Validator(formSelector) {
         // xử lý hành vi submit form
         formElement.onsubmit = function (event) {
             event.preventDefault();
-
-            // _this.onSubmit();
 
             var inputs = formElement.querySelectorAll('[name][rules]');
             var isValid = true;
